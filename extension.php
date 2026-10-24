@@ -57,10 +57,10 @@ final class ArticleSummaryExtension extends Minz_Extension
    */
   public function addSummaryButton(FreshRSS_Entry $entry): FreshRSS_Entry
   {
-    // Check if current request is for RSS feed
-    // 检查当前请求是否为RSS feed
-    if (Minz_Request::param('a') === 'rss') {
-      return $entry; // Return original entry without modifying it for RSS
+    // Skip injection for clients that cannot run the button JavaScript
+    // 跳过无法运行按钮 JS 的客户端，避免留下多余空白
+    if ($this->isNonInteractiveRequest()) {
+      return $entry; // Return original entry unmodified
     }
     
     // Generate URL for summarization request
@@ -96,6 +96,22 @@ final class ArticleSummaryExtension extends Minz_Extension
     );
     
     return $entry;
+  }
+
+  /**
+   * Detect requests from clients that cannot run the summary button JS
+   * 判断是否为无法执行按钮 JS 的请求（内置 RSS 输出、第三方阅读器 API）
+   */
+  private function isNonInteractiveRequest(): bool
+  {
+    // FreshRSS built-in RSS output
+    if (Minz_Request::param('a') === 'rss') {
+      return true;
+    }
+    // Third-party clients using Google Reader (Reeder, etc.) or Fever API
+    $script = $_SERVER['SCRIPT_NAME'] ?? '';
+    return stripos($script, '/api/greader.php') !== false
+      || stripos($script, '/api/fever.php') !== false;
   }
 
   /**
