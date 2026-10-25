@@ -14,7 +14,7 @@
   --oai-fg: var(--main-font-color, #363330);
 
   display: block;
-  margin: 0 0 0.7em;
+  margin: 0 0 0.5em;
   padding: 0;
   background: none;
   border: 0;
@@ -73,6 +73,11 @@
   background: transparent;
 }
 
+/* 总结卡下方的空隙交给下面这条规则收住,避免和正文首段落的上边距叠加成一整行 */
+.oai-summary-wrap + * {
+  margin-top: 0;
+}
+
 /* ---- 内容区:空的时候完全不占高度 ---- */
 .oai-summary-content:empty {
   display: none;
@@ -80,7 +85,7 @@
 
 .oai-summary-content:not(:empty) {
   margin-top: 0.55em;
-  padding: 0.6em 0.85em;
+  padding: 0.5em 0.85em;
   font-size: 0.9rem;
   line-height: 1.6;
   color: var(--oai-fg);
@@ -95,7 +100,8 @@
   margin-top: 0;
 }
 
-.oai-summary-content > :last-child {
+.oai-summary-content > :last-child,
+.content .text .oai-summary-content > :last-child {
   margin-bottom: 0;
 }
 
@@ -117,14 +123,39 @@
   color: var(--oai-fg);
 }
 
+/* 主题里 `.content .text ul,ol` 权重更高(0,2,1),会带回 padding-bottom 与左缩进,
+ * 这里用同等以上权重覆盖,避免列表底部多出半行空白 */
 .oai-summary-content ul,
-.oai-summary-content ol {
+.oai-summary-content ol,
+.content .text .oai-summary-content ul,
+.content .text .oai-summary-content ol {
   margin: 0 0 0.5em;
-  padding-left: 1.25em;
+  padding: 0 0 0 1.25em;
 }
 
 .oai-summary-content li {
   margin: 0 0 0.25em;
+}
+
+.oai-summary-content li:last-child {
+  margin-bottom: 0;
+}
+
+/*
+ * LLM 输出常在列表项之间留空行 → marked 生成「松散列表」(<li><p>…</p></li>),
+ * 段落自身的下边距会在卡片底部堆出一整行空白。这里把 li 内的段落压平。
+ */
+.oai-summary-content li > p {
+  margin: 0;
+}
+
+.oai-summary-content li > p + p {
+  margin-top: 0.35em;
+}
+
+.oai-summary-content li > ul,
+.oai-summary-content li > ol {
+  margin-bottom: 0;
 }
 
 .oai-summary-content blockquote {
