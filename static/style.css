@@ -13,8 +13,13 @@
   --oai-accent: var(--main-first, #ca7227);
   --oai-fg: var(--main-font-color, #363330);
 
-  display: block;
-  margin: 0 0 0.5em;
+  /* flex 纵向排列:按钮不再占一个行盒(移动端行高更大时不会多出下沿空白),
+     间距用 px 固定,不受 root 字号/字体内放大影响 */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin: 0 0 8px;
   padding: 0;
   background: none;
   border: 0;
@@ -23,6 +28,7 @@
 
 /* ---- 按钮:小胶囊 ---- */
 .oai-summary-btn {
+  flex: none;
   display: inline-flex;
   align-items: center;
   gap: 0.35em;
@@ -84,8 +90,10 @@
 }
 
 .oai-summary-content:not(:empty) {
-  margin-top: 0.55em;
-  padding: 0.5em 0.85em;
+  /* flex 子项默认按内容宽度收缩,这里拉满整行 */
+  align-self: stretch;
+  margin-top: 0;
+  padding: 7px 12px;
   font-size: 0.9rem;
   line-height: 1.6;
   color: var(--oai-fg);
@@ -96,7 +104,8 @@
 }
 
 /* 总结内部排版收紧,避免大段留白 */
-.oai-summary-content > :first-child {
+.oai-summary-content > :first-child,
+.content .text .oai-summary-content > :first-child {
   margin-top: 0;
 }
 
