@@ -1,59 +1,107 @@
-:root {
-  /* Default theme variables (can be overridden by user themes) */
-  --oai-bg-color: #f8f8f8;
-  --oai-border-color: #e0e0e0;
-  --oai-text-color: #333;
-  --oai-btn-bg: #6366f1;
-  --oai-btn-text: #fff;
-  --oai-btn-hover-bg: #4f46e5;
-  --oai-border-radius: 8px;
-}
-
-/* Nord Theme specific variables (will be used if Nord theme is active) */
-.theme-nord :root {
-  --oai-bg-color: #2e3440;
-  --oai-border-color: #434c5e;
-  --oai-text-color: #d8dee9;
-  --oai-btn-bg: #5e81ac;
-  --oai-btn-text: #e5e9f0;
-  --oai-btn-hover-bg: #81a1c1;
-}
+/*
+ * Article Summary CSS — compact version
+ * 总结按钮:小胶囊 + 只在有内容时展开的轻量卡片
+ *
+ * 设计目标 / design goals:
+ * - 默认不占版面:无背景大盒、无边框、无阴影,只留一行小胶囊
+ * - 跟随主题:优先用 FreshRSS 主题变量(--main-first 等),任何主题/深色主题都不会突兀
+ * - 空内容零高度,避免文章开头出现空白
+ */
 
 .oai-summary-wrap {
-  background: var(--oai-bg-color, #f8f8f8);
-  padding: 1.2em;
-  margin-bottom: 1.5em;
-  border: 1px solid var(--oai-border-color, #e0e0e0);
-  border-radius: var(--oai-border-radius, 8px);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  /* 主题变量 + 兜底值 */
+  --oai-accent: var(--main-first, #ca7227);
+  --oai-fg: var(--main-font-color, #363330);
+
+  display: block;
+  margin: 0 0 0.7em;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
 }
 
+/* ---- 按钮:小胶囊 ---- */
 .oai-summary-btn {
-  font-size: 1.1em;
-  padding: 0.5em 1em;
-  margin-bottom: 0.8em;
-  background-color: var(--oai-btn-bg, #6366f1);
-  color: var(--oai-btn-text, #fff);
-  border: none;
-  border-radius: var(--oai-border-radius, 6px);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: 0.4em 0.7em 0.4em 0.6em;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--oai-accent) 28%, transparent);
+  background: color-mix(in srgb, var(--oai-accent) 7%, transparent);
+  color: var(--oai-accent);
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  font-weight: 500;
+  opacity: 0.85;
+  transition: opacity 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+/* 图标;按钮还没被 JS 填入文案时也能看懂 */
+.oai-summary-btn::before {
+  content: '✨';
+  font-size: 0.95em;
+  line-height: 1;
+}
+
+.oai-summary-btn:empty::before {
+  content: '✨ AI 总结';
 }
 
 .oai-summary-btn:hover {
-  background-color: var(--oai-btn-hover-bg, #4f46e5);
+  opacity: 1;
+  background: color-mix(in srgb, var(--oai-accent) 14%, transparent);
+  border-color: color-mix(in srgb, var(--oai-accent) 45%, transparent);
+}
+
+.oai-summary-btn:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--oai-accent) 55%, transparent);
+  outline-offset: 2px;
 }
 
 .oai-summary-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  opacity: 0.55;
+  cursor: progress;
 }
 
-.oai-summary-content {
-  color: var(--oai-text-color, #333);
+/* 已出总结后按钮退居次要,不再抢眼 */
+.oai-summary-wrap:has(.oai-summary-content:not(:empty)) .oai-summary-btn {
+  opacity: 0.45;
+  background: transparent;
+}
+
+/* ---- 内容区:空的时候完全不占高度 ---- */
+.oai-summary-content:empty {
+  display: none;
+}
+
+.oai-summary-content:not(:empty) {
+  margin-top: 0.55em;
+  padding: 0.6em 0.85em;
+  font-size: 0.9rem;
   line-height: 1.6;
+  color: var(--oai-fg);
+  background: color-mix(in srgb, var(--oai-accent) 5%, transparent);
+  border-left: 3px solid color-mix(in srgb, var(--oai-accent) 45%, transparent);
+  border-radius: 0 6px 6px 0;
+  overflow-wrap: break-word;
+}
+
+/* 总结内部排版收紧,避免大段留白 */
+.oai-summary-content > :first-child {
+  margin-top: 0;
+}
+
+.oai-summary-content > :last-child {
+  margin-bottom: 0;
+}
+
+.oai-summary-content p,
+.oai-summary-content div {
+  margin: 0 0 0.5em;
 }
 
 .oai-summary-content h1,
@@ -62,57 +110,73 @@
 .oai-summary-content h4,
 .oai-summary-content h5,
 .oai-summary-content h6 {
-  margin-top: 1em;
-  margin-bottom: 0.5em;
-  font-weight: 600;
-  color: var(--oai-text-color, #333);
-}
-
-.oai-summary-content h1 {
-  font-size: 1.5em;
-}
-
-.oai-summary-content h2 {
-  font-size: 1.3em;
-}
-
-.oai-summary-content h3 {
-  font-size: 1.1em;
-}
-
-.oai-summary-content p,
-.oai-summary-content div {
-  margin-bottom: 0.8em;
+  margin: 0.7em 0 0.3em;
+  font-size: 1em;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--oai-fg);
 }
 
 .oai-summary-content ul,
 .oai-summary-content ol {
-  margin-bottom: 0.8em;
-  padding-left: 1.5em;
+  margin: 0 0 0.5em;
+  padding-left: 1.25em;
 }
 
 .oai-summary-content li {
-  margin-bottom: 0.4em;
+  margin: 0 0 0.25em;
 }
 
-/* Loading state */
+.oai-summary-content blockquote {
+  margin: 0.4em 0;
+  padding-left: 0.7em;
+  border-left: 2px solid color-mix(in srgb, var(--oai-accent) 35%, transparent);
+  color: color-mix(in srgb, var(--oai-fg) 75%, transparent);
+}
+
+.oai-summary-content code {
+  font-size: 0.9em;
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--oai-fg) 8%, transparent);
+}
+
+/* ---- 加载中:小转圈 ---- */
 .oai-loading .oai-summary-btn::after {
   content: '';
   display: inline-block;
-  width: 16px;
-  height: 16px;
-  margin-left: 8px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  width: 0.72em;
+  height: 0.72em;
+  margin-left: 0.1em;
+  border: 2px solid color-mix(in srgb, currentColor 25%, transparent);
+  border-top-color: currentColor;
   border-radius: 50%;
-  border-top-color: #fff;
-  animation: spin 1s linear infinite;
+  animation: oai-spin 0.8s linear infinite;
 }
 
-/* Error state */
-.oai-error .oai-summary-content {
-  color: #ef4444;
+.oai-loading .oai-summary-content:not(:empty) {
+  color: color-mix(in srgb, var(--oai-fg) 70%, transparent);
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+/* ---- 出错:换成警示色 ---- */
+.oai-error .oai-summary-content:not(:empty) {
+  color: var(--alert-text, #73341f);
+  background: color-mix(in srgb, var(--alert-bg, #f5633e) 8%, transparent);
+  border-left-color: var(--alert-bg, #f5633e);
+}
+
+@keyframes oai-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oai-summary-btn {
+    transition: none;
+  }
+
+  .oai-loading .oai-summary-btn::after {
+    animation-duration: 2s;
+  }
 }
