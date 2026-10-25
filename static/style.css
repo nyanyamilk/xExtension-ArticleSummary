@@ -211,6 +211,17 @@
   }
 }
 
+/*
+ * 窄屏(≤840px)主题会把 .content .text 的内边距从「0 3rem」改成「1rem」,
+ * 多出来的 1rem 上内边距正好落在第一个元素(总结胶囊)上方 → 手机上看起来比桌面多一行。
+ * 胶囊是控件不是正文,这里把这块留白抵掉,桌面上规则不生效。
+ */
+@media (max-width: 840px) {
+  .content .text > .oai-summary-wrap:first-child {
+    margin-top: -1rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .oai-summary-btn {
     transition: none;
